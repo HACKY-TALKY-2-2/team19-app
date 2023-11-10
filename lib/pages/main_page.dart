@@ -31,6 +31,7 @@ class MainPageState extends State<MainPage> {
   bool _isSearchOn = false;
 
   BitmapDescriptor _cctvIcon = BitmapDescriptor.defaultMarker;
+  BitmapDescriptor _complainsIcon = BitmapDescriptor.defaultMarker;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -199,10 +200,15 @@ class MainPageState extends State<MainPage> {
   }
 
   void addCustomMarker() async {
-    final Uint8List markerIcon =
+    final Uint8List markerIcon1 =
+        await getBytesFromAsset('assets/icons/cctv.png', 80);
+
+    //TODO: 민원신고 아이콘 바꾸기
+    final Uint8List markerIcon2 =
         await getBytesFromAsset('assets/icons/cctv.png', 80);
     setState(() {
-      _cctvIcon = BitmapDescriptor.fromBytes(markerIcon);
+      _cctvIcon = BitmapDescriptor.fromBytes(markerIcon1);
+      _complainsIcon = BitmapDescriptor.fromBytes(markerIcon2);
     });
   }
 
@@ -280,8 +286,8 @@ class MainPageState extends State<MainPage> {
       _userMarkers.add(Marker(
         markerId: const MarkerId("currentLocation"),
         position: currentLatLng!,
-        icon: _cctvIcon,
-        // icon: BitmapDescriptor.defaultMarker,
+        // icon: _cctvIcon,
+        icon: BitmapDescriptor.defaultMarker,
         infoWindow: const InfoWindow(
           title: "현재 위치",
         ),
@@ -387,7 +393,7 @@ class MainPageState extends State<MainPage> {
                     ),
                     onPressed: () async {
                       // 두 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
-                       
+
                       await _getCurrentLocation();
                       setState(() {
                         _isSearchOn = false;
@@ -567,6 +573,49 @@ class MainPageState extends State<MainPage> {
               icon: _cctvIcon,
               infoWindow: const InfoWindow(
                 title: "CCTV",
+              ),
+            ));
+          }
+        });
+      } on DioException catch (e) {
+        if (e.response != null) {
+          // DioError contains response data
+          print('Dio error!');
+          print('STATUS: ${e.response?.statusCode}');
+          print('DATA: ${e.response?.data}');
+          print('HEADERS: ${e.response?.headers}');
+        } else {
+          // Error due to setting up or sending/receiving the request
+          print('Error sending request!');
+          print(e.message);
+        }
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+
+      try {
+        final response = await dio.get(
+          'http://parking-api.jseoplim.com/reports',
+          queryParameters: {
+            'rectangle':
+                '${bounds.southwest.longitude},${bounds.southwest.latitude},${bounds.northeast.longitude},${bounds.northeast.latitude}',
+          },
+        );
+        for (int i = 0; i < response.data.length; i++) {
+          debugPrint("리스폰스 결과${response.data[i]}");
+        }
+        //TODO: 여기서 불러온 값들을 기준으로 작성해줘야한다.
+        setState(() {
+          _complainMarkers.clear();
+          for (int i = 0; i < response.data.length; i++) {
+            debugPrint("리스폰스 결과${response.data[i]}");
+            _complainMarkers.add(Marker(
+              markerId: MarkerId('complains$i'),
+              position: LatLng(
+                  response.data[i]["latitude"], response.data[i]["longitude"]),
+              icon: _complainsIcon,
+              infoWindow: const InfoWindow(
+                title: "신고",
               ),
             ));
           }
