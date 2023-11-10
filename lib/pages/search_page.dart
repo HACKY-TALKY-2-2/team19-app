@@ -7,7 +7,7 @@ class SearchedAddres {
   late double lat;
   late double lng;
 
-  SearchedAddres(this.name, this.formattedAddress,this.lat,this.lng);
+  SearchedAddres(this.name, this.formattedAddress, this.lat, this.lng);
 }
 
 class SearchPage extends StatefulWidget {
@@ -37,13 +37,13 @@ class _SearchPageState extends State<SearchPage> {
               decoration: BoxDecoration(
                 color: Colors.white, // 검색창 배경색
                 borderRadius: searchedAddress.isEmpty
-                    ? BorderRadius.only(
+                    ? const BorderRadius.only(
                         topRight: Radius.circular(10),
                         bottomRight: Radius.circular(10),
                         topLeft: Radius.circular(10),
                         bottomLeft: Radius.circular(10),
                       )
-                    : BorderRadius.only(
+                    : const BorderRadius.only(
                         topLeft: Radius.circular(10),
                         topRight: Radius.circular(10),
                       ),
@@ -55,27 +55,36 @@ class _SearchPageState extends State<SearchPage> {
                     color: Colors.grey.withOpacity(0.5),
                     spreadRadius: 2,
                     blurRadius: 7,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
-              child: TextField(
-                controller: _controller,
-                onChanged: (value) => _searchAddress(),
-                onSubmitted: (value) => _searchAddress(),
-                decoration: InputDecoration(
-                  hintText: 'Enter an address',
-                  suffixIcon: IconButton(
-                    onPressed: () => _searchAddress(),
-                    icon: Icon(Icons.search),
-                  ), // 검색 아이콘
-                  border: InputBorder.none, // 테두리 없애기
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: TextField(
+                  controller: _controller,
+                  onChanged: (value) => _searchAddress(),
+                  onSubmitted: (value) => _searchAddress(),
+                  decoration: InputDecoration(
+                    hintText: 'Enter an address',
+                    suffixIcon: IconButton(
+                      onPressed: () => _searchAddress(),
+                      icon: const Icon(Icons.search),
+                    ), // 검색 아이콘
+                    border: InputBorder.none, // 테두리 없애기
+                  ),
                 ),
               ),
             ),
             // Text(_response),
             Expanded(
               child: Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                ),
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: searchedAddress.length,
@@ -89,7 +98,7 @@ class _SearchPageState extends State<SearchPage> {
                         title: Text(searchedAddress[index].name),
                         subtitle: Text(searchedAddress[index].formattedAddress),
                       ),
-                      
+
                       // decoration: index == searchedAddress.length - 1
                       //     ? BoxDecoration(
                       //         borderRadius: BorderRadius.only(
