@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -64,7 +65,16 @@ class _SettingPageState extends State<SettingPage> {
                   height: 60,
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final url = Uri.parse(
+                        'https://smartreport.seoul.go.kr/w100/index.do');
+                    if (await canLaunchUrl(url)) {
+                      launchUrl(url);
+                    } else {
+                      // ignore: avoid_print
+                      print("Can't launch $url");
+                    }
+                  },
                   child: Container(
                     clipBehavior: Clip.hardEdge,
                     width: 330,
