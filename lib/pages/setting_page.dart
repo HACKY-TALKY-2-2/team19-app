@@ -47,6 +47,7 @@ class _SettingPageState extends State<SettingPage> {
                           const Text(
                             '설정',
                             style: TextStyle(
+                              fontFamily: 'Yeongdeok',
                               fontSize: 30,
                               color: Colors.white,
                             ),

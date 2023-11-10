@@ -25,6 +25,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  bool _isLoading = true;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -40,13 +42,17 @@ class _MyAppState extends State<MyApp> {
     if (cookiesBySecureStorage == null) {
       await secureStorage.write(key: 'userUuid', value: uuid);
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Flutter Google Maps Demo',
-      home: MainPage(),
+      theme: ThemeData(fontFamily: 'Yeongdeok'),
+      home: _isLoading?Container():MainPage(),
     );
   }
 }

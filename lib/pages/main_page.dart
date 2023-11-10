@@ -49,7 +49,7 @@ class MainPageState extends State<MainPage> {
     exampleGetApi();
     examplePostApi();
     addCustomMarker();
-    Timer.periodic(Duration(seconds: 5), (Timer t) {
+    Timer.periodic(Duration(seconds: 3), (Timer t) {
       periodicFunction();
     });
   }
