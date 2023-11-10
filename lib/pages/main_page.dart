@@ -49,6 +49,52 @@ class MainPageState extends State<MainPage> {
     exampleGetApi();
     examplePostApi();
     addCustomMarker();
+    Timer.periodic(Duration(seconds: 5), (Timer t) {
+      periodicFunction();
+    });
+  }
+
+  void periodicFunction() async {
+    final GeolocatorPlatform geolocator = GeolocatorPlatform.instance;
+
+    // 1. 위치 권한 요청 최적화
+    LocationPermission permission = await geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('위치 권한이 거부되었습니다.'),
+      ));
+      return;
+    }
+
+    try {
+      // 2. 권한 요청과 위치 정보 가져오기를 병렬로 처리
+      var permissionTask = geolocator.requestPermission();
+      var positionTask = Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      var permissionResult = await permissionTask;
+      if (permissionResult == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('위치 권한이 거부되었습니다.'),
+        ));
+        return;
+      }
+
+      var position = await positionTask;
+      debugPrint("현재 위치: ${position.latitude}, ${position.longitude}");
+
+      // setState(() {
+      //   currentPosition = position;
+      //   currentLatLng = LatLng(position.latitude, position.longitude);
+      // });
+
+      // if (currentPosition != null) {
+      //   _moveCameraToCurrentPosition();
+      // }
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   Future<Uint8List> getBytesFromAsset(String path, int width) async {
