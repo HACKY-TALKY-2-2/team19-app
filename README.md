@@ -1,16 +1,14 @@
-# parking_app
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# team19-app
+19조 app
+# 역파카 - 강남구 주차 플랫폼
+💡 핵심 기능: 불법 주차 신고 피하기!
+- CCTV 위치 표시, 지점별 신고 개수 표시 → 자주 신고 당하는(하는) 곳을 강조
+- 현재 위치 신고 위험 지역일 경우 사용자에게 알림으로 알려줌
+## 계기
+- 강남구청 민원 분석 (역삼역)
+![image](https://github.com/HACKY-TALKY-2-2/team19-api/assets/78073229/e83c9f97-101c-45ff-a9d6-2e19caab231c)
+- 안전교통이 매우 큰 비중을 차지하고 있음.
+- 강남구는 특히 주차 문제로 인해 여러 문제를 안고 있고, 그 중 하나가 불법 주차 문제임. ([link](https://mobile.newsis.com/view.html?ar_id=NISX20230518_0002307371#_PA))
+- 이러한 과정에 발생하는 비의도적으로 불법 주차 신고를 당하는 등의 문제를 해결하고, 불법 주차 장소에 대한 정보를 알리기 위해 고안된 어플
+## 기술 스택
+Flutter
