@@ -5,12 +5,14 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
   @override
   State<MainPage> createState() => MainPageState();
 }
 
 class MainPageState extends State<MainPage> {
-  Completer<GoogleMapController> _controller = Completer();
+  final Completer<GoogleMapController> _controller = Completer();
   Position? currentPosition;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
@@ -29,38 +31,123 @@ class MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: GoogleMap(
-          mapType: MapType.normal,
-          initialCameraPosition: _kGooglePlex,
-      
-          //TODO: 솔직히 이거 두개 기능 차이 모르겠음
-          myLocationEnabled: true,
-          myLocationButtonEnabled: true,
-          zoomControlsEnabled: false,
-      
-          onMapCreated: (GoogleMapController controller) {
-            _controller.complete(controller);
-          },
-          
-          markers: currentPosition != null
-              ? {
-                  Marker(
-                    markerId: MarkerId("currentLocation"),
-                    position: LatLng(
-                        currentPosition!.latitude, currentPosition!.longitude),
-                    icon: BitmapDescriptor.defaultMarker,
-                    infoWindow: InfoWindow(
-                      title: "Current Location",
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            GoogleMap(
+              mapType: MapType.normal,
+              initialCameraPosition: _kGooglePlex,
+
+              //TODO: 솔직히 이거 두개 기능 차이 모르겠음
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              zoomControlsEnabled: false,
+
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+
+              markers: currentPosition != null
+                  ? {
+                      Marker(
+                        markerId: const MarkerId("currentLocation"),
+                        position: LatLng(currentPosition!.latitude,
+                            currentPosition!.longitude),
+                        icon: BitmapDescriptor.defaultMarker,
+                        infoWindow: const InfoWindow(
+                          title: "Current Location",
+                        ),
+                      ),
+                    }
+                  : {},
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 80),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      fixedSize: MaterialStateProperty.all(const Size(70, 70)),
+                      backgroundColor: MaterialStateProperty.all(Colors.black),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              16.0), // 원하는 BorderRadius 설정
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      // 첫 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
+                    },
+                    child: Container(
+                      width: 20,
+                      decoration: const BoxDecoration(),
+                      child: Transform.scale(
+                        scale: 1.8,
+                        child: Image.asset(
+                          'assets/icons/search_color.png',
+                        ),
+                      ),
                     ),
                   ),
-                }
-              : {},
+                  const SizedBox(width: 35),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      fixedSize: MaterialStateProperty.all(const Size(90, 90)),
+                      backgroundColor: MaterialStateProperty.all(Colors.black),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              16.0), // 원하는 BorderRadius 설정
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      // 두 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
+                    },
+                    child: Container(
+                      width: 20,
+                      decoration: const BoxDecoration(),
+                      child: Transform.scale(
+                        scale: 2.5,
+                        child: Image.asset(
+                          'assets/icons/current_location_color.png',
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 35),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      fixedSize: MaterialStateProperty.all(const Size(70, 70)),
+                      backgroundColor: MaterialStateProperty.all(Colors.black),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              16.0), // 원하는 BorderRadius 설정
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      // 세 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
+                    },
+                    child: Container(
+                      width: 20,
+                      decoration: const BoxDecoration(),
+                      child: Transform.scale(
+                        scale: 1.8,
+                        child: Image.asset(
+                          'assets/icons/user_color.png',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _getCurrentLocation,
-        label: Text('현재 위치로 이동'),
-        icon: Icon(Icons.location_on),
       ),
     );
   }
@@ -70,7 +157,7 @@ class MainPageState extends State<MainPage> {
     LocationPermission permission = await geolocator.requestPermission();
 
     if (permission == LocationPermission.denied) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('위치 권한이 거부되었습니다.'),
       ));
       return;
