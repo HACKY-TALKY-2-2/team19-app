@@ -37,9 +37,13 @@ dependencies:
   google_maps_flutter: ^2.5.0
   geolocator: ^10.1.0
   dio: ^5.3.3
+
+  url_launcher: ^6.0.12
+
   provider: ^6.1.1
   uuid: ^4.2.1
   flutter_secure_storage: ^7.0.1
+
 
 dev_dependencies:
   flutter_test:
