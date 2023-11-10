@@ -552,23 +552,31 @@ class MainPageState extends State<MainPage> {
     try {
       final response = await dio.get(
         'http://parking-api.jseoplim.com/cameras',
+        // queryParameters: {
+        //   'rectangle':
+        //       '${bounds.southwest.longitude},${bounds.southwest.latitude},${bounds.northeast.longitude},${bounds.northeast.latitude}',
+        // },
         queryParameters: {
           'rectangle':
-              '${bounds.southwest.longitude},${bounds.southwest.latitude},${bounds.northeast.longitude},${bounds.northeast.latitude}',
+              '${bounds.southwest.latitude},${bounds.southwest.longitude},${bounds.northeast.latitude},${bounds.northeast.longitude}',
         },
       );
-      for (int i = 0; i < response.data.length; i++) {
-        debugPrint("리스폰스 결과${response.data[i]}");
+      debugPrint(
+          "리스폰스 결과21${response.data.toString()}${response.data.length}}");
+      var res = response.data["data"];
+      for (int i = 0; i < res.length; i++) {
+        debugPrint("리스폰스 결과213${res[i]}");
       }
+
       //TODO: 여기서 불러온 값들을 기준으로 작성해줘야한다.
       setState(() {
         _cctvMarkers.clear();
-        for (int i = 0; i < response.data.length; i++) {
+        for (int i = 0; i < res.length; i++) {
           debugPrint("리스폰스 결과${response.data[i]}");
+          debugPrint(res[i]["position"]["y"].toString());
           _cctvMarkers.add(Marker(
             markerId: MarkerId('CCTV$i'),
-            position: LatLng(
-                response.data[i]["latitude"], response.data[i]["longitude"]),
+            position: LatLng(res[i]["position"]["y"], res[i]["position"]["x"]),
             icon: _cctvIcon,
             infoWindow: const InfoWindow(
               title: "CCTV",
@@ -588,6 +596,7 @@ class MainPageState extends State<MainPage> {
         print('Error sending request!');
         print(e.message);
       }
+
       try {
         final response = await dio.get(
           'http://parking-api.jseoplim.com/reports',
@@ -596,18 +605,18 @@ class MainPageState extends State<MainPage> {
                 '${bounds.southwest.longitude},${bounds.southwest.latitude},${bounds.northeast.longitude},${bounds.northeast.latitude}',
           },
         );
-        for (int i = 0; i < response.data.length; i++) {
+        var res = response.data["data"];
+        for (int i = 0; i < res.length; i++) {
           debugPrint("리스폰스 결과${response.data[i]}");
         }
         //TODO: 여기서 불러온 값들을 기준으로 작성해줘야한다.
         setState(() {
           _complainMarkers.clear();
-          for (int i = 0; i < response.data.length; i++) {
-            debugPrint("리스폰스 결과${response.data[i]}");
+          for (int i = 0; i < res.length; i++) {
+            debugPrint("리스폰스 결과${res[i]}");
             _complainMarkers.add(Marker(
               markerId: MarkerId('complains$i'),
-              position: LatLng(
-                  response.data[i]["latitude"], response.data[i]["longitude"]),
+              position: LatLng(res[i]["latitude"], res[i]["longitude"]),
               icon: _complainsIcon,
               infoWindow: const InfoWindow(
                 title: "신고",
