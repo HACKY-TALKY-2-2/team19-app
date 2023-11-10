@@ -44,7 +44,6 @@ dependencies:
   uuid: ^4.2.1
   flutter_secure_storage: ^7.0.1
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -84,6 +83,9 @@ flutter:
     - family: Yeongdeok
       fonts:
         - asset: assets/fonts/YeongdeokHaeparang.otf
+    - family: Gangwonstate
+      fonts:
+        - asset: assets/fonts/Gangwonstate-SemiBold.ttf
 
   #
   # For details regarding fonts from package dependencies,

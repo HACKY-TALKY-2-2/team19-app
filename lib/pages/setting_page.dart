@@ -15,7 +15,13 @@ class _SettingPageState extends State<SettingPage> {
       home: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: const Center(child: Text('부가 가능들')),
+          centerTitle: true,
+          title: const Text(
+            '부가 기능들',
+            style: TextStyle(
+              fontFamily: 'Gangwonstate',
+            ),
+          ),
           backgroundColor: Colors.black,
         ),
         body: Padding(
@@ -47,8 +53,8 @@ class _SettingPageState extends State<SettingPage> {
                           const Text(
                             '설정',
                             style: TextStyle(
-                              fontFamily: 'Yeongdeok',
-                              fontSize: 30,
+                              fontFamily: 'Gangwonstate',
+                              fontSize: 40,
                               color: Colors.white,
                             ),
                           ),
@@ -98,7 +104,8 @@ class _SettingPageState extends State<SettingPage> {
                           const Text(
                             '불법주차\n신고하기',
                             style: TextStyle(
-                              fontSize: 25,
+                              fontFamily: 'Gangwonstate',
+                              fontSize: 30,
                               color: Colors.white,
                             ),
                           ),
