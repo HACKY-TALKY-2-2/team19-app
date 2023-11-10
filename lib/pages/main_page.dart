@@ -26,6 +26,8 @@ class MainPageState extends State<MainPage> {
   bool _isCCTVOn = false;
   bool _isComplainOn = false;
 
+  BitmapDescriptor _cctvIcon = BitmapDescriptor.defaultMarker;
+
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
@@ -44,6 +46,19 @@ class MainPageState extends State<MainPage> {
     super.initState();
     exampleGetApi();
     examplePostApi();
+    addCustomMarker();
+  }
+
+  void addCustomMarker() {
+    BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(size: Size(48,48)), "assets/icons/cctv.png")
+      .then(
+    (icon) {
+      setState(() {
+        _cctvIcon = icon;
+      });
+    },
+  );
   }
 
   ///예제 코드 입니다.
@@ -120,7 +135,8 @@ class MainPageState extends State<MainPage> {
       _userMarkers.add(Marker(
         markerId: const MarkerId("currentLocation"),
         position: currentLatLng!,
-        icon: BitmapDescriptor.defaultMarker,
+        icon: _cctvIcon,
+        // icon: BitmapDescriptor.defaultMarker,
         infoWindow: const InfoWindow(
           title: "현재 위치",
         ),
@@ -385,7 +401,21 @@ class MainPageState extends State<MainPage> {
           debugPrint("리스폰스 결과${response.data[i]}");
         }
         //TODO: 여기서 불러온 값들을 기준으로 작성해줘야한다.
-        setState(() {});
+        setState(() {
+          _cctvMarkers.clear();
+          for (int i = 0; i < response.data.length; i++) {
+            debugPrint("리스폰스 결과${response.data[i]}");
+            _cctvMarkers.add(Marker(
+              markerId: MarkerId('CCTV$i'),
+              position: LatLng(
+                  response.data[i]["latitude"], response.data[i]["longitude"]),
+              icon: _cctvIcon,
+              infoWindow: const InfoWindow(
+                title: "CCTV",
+              ),
+            ));
+          }
+        });
       } on DioException catch (e) {
         if (e.response != null) {
           // DioError contains response data
