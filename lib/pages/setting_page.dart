@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingPage extends StatefulWidget {
+  final bool accessSettings = false;
   const SettingPage({super.key});
 
   @override
@@ -42,7 +43,9 @@ class _SettingPageState extends State<SettingPage> {
                     width: 330,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: widget.accessSettings
+                          ? Colors.black
+                          : Colors.grey.shade400,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Padding(
@@ -50,20 +53,23 @@ class _SettingPageState extends State<SettingPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             '설정',
                             style: TextStyle(
                               fontFamily: 'Gangwonstate',
                               fontSize: 40,
-                              color: Colors.white,
+                              color: widget.accessSettings
+                                  ? Colors.white
+                                  : Colors.grey,
                             ),
                           ),
                           Transform.scale(
                             scale: 1.15,
                             child: Transform.translate(
                               offset: const Offset(2.0, 23.0),
-                              child:
-                                  Image.asset('assets/icons/setting_color.png'),
+                              child: Image.asset(
+                                'assets/icons/setting_color.png',
+                              ),
                             ),
                           ),
                         ],
