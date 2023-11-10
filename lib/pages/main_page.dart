@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MainPage extends StatefulWidget {
@@ -10,6 +11,7 @@ class MainPage extends StatefulWidget {
 
 class MainPageState extends State<MainPage> {
   Completer<GoogleMapController> _controller = Completer();
+  Position? currentPosition;
 
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -24,20 +26,67 @@ class MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       body: GoogleMap(
-        mapType: MapType.hybrid,
+        mapType: MapType.normal,
         initialCameraPosition: _kGooglePlex,
         onMapCreated: (GoogleMapController controller) {
           _controller.complete(controller);
         },
+        //현재 위치에 마커 찍기
+        markers: currentPosition != null
+            ? {
+                Marker(
+                  markerId: MarkerId("currentLocation"),
+                  position: LatLng(
+                      currentPosition!.latitude, currentPosition!.longitude),
+                  icon: BitmapDescriptor.defaultMarker,
+                  infoWindow: InfoWindow(
+                    title: "Current Location",
+                  ),
+                ),
+              }
+            : {},
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToTheLake,
+        //onPressed: _goToTheLake,
+        onPressed: _getCurrentLocation,
         label: Text('To the lake!'),
         icon: Icon(Icons.directions_boat),
       ),
     );
+  }
+
+  Future<void> _getCurrentLocation() async {
+    final GeolocatorPlatform geolocator = GeolocatorPlatform.instance;
+    LocationPermission permission = await geolocator.requestPermission();
+
+    if (permission == LocationPermission.denied) {
+      // 사용자가 위치 권한을 거부한 경우 처리
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Location permission denied.'),
+      ));
+      return;
+    }
+
+    // 현재 위치 가져오기
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    setState(() {
+      currentPosition = position;
+    });
+
+    // 현재 위치로 카메라 이동
+    final GoogleMapController controller = await _controller.future;
+    if (currentPosition != null) {
+      // 이동할 위치와 줌 레벨을 설정합니다.
+      CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(
+          LatLng(currentPosition!.latitude, currentPosition!.longitude), 15.0);
+
+      // 카메라를 이동하고 줌을 조정합니다.
+      controller.animateCamera(cameraUpdate);
+    }
   }
 
   Future<void> _goToTheLake() async {
