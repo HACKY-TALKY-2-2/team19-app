@@ -235,19 +235,15 @@ class MainPageState extends State<MainPage> {
                 children: [
                   ElevatedButton(
                     style: ButtonStyle(
-                        fixedSize:
-                            MaterialStateProperty.all(const Size(70, 70)),
-                        backgroundColor:
-                            MaterialStateProperty.all(Colors.black),
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                16.0), // 원하는 BorderRadius 설정
-                          ),
+                      fixedSize: MaterialStateProperty.all(const Size(70, 70)),
+                      backgroundColor: MaterialStateProperty.all(Colors.black),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              16.0), // 원하는 BorderRadius 설정
                         ),
-                        overlayColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.black.withOpacity(0.5))),
+                      ),
+                    ),
                     onPressed: () async {
                       // 첫 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
                       SearchedAddres? result = await showDialog(
