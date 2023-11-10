@@ -38,16 +38,16 @@ class _MyAppState extends State<MyApp> {
   }
 
   void getUuid() async {
-    var uuid = Uuid().v4();
-    String finalUuid ="";
+    var uuid = const Uuid().v4();
+    String finalUuid = "";
+
     FlutterSecureStorage secureStorage = const FlutterSecureStorage();
     String? cookiesBySecureStorage = await secureStorage.read(key: 'userUuid');
-    debugPrint("current UUID :" + cookiesBySecureStorage.toString());
+    debugPrint("current UUID :$cookiesBySecureStorage");
     if (cookiesBySecureStorage == null) {
       await secureStorage.write(key: 'userUuid', value: uuid);
       finalUuid = uuid;
-    }
-    else{
+    } else {
       finalUuid = cookiesBySecureStorage.toString();
     }
     final Dio dio = Dio();
@@ -56,12 +56,11 @@ class _MyAppState extends State<MyApp> {
         'http://parking-api.jseoplim.com/devices',
         //post는 body가 있어야한다.
         data: {
-          'deviceToken':finalUuid,
+          'deviceToken': finalUuid,
         },
       );
-     
-        debugPrint("리스폰스 결과${response.data["detail"]}");
-      
+
+      debugPrint("리스폰스 결과${response.data["detail"]}");
     } on DioException catch (e) {
       if (e.response != null) {
         // DioError contains response data
@@ -87,7 +86,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Flutter Google Maps Demo',
       theme: ThemeData(fontFamily: 'Yeongdeok'),
-      home: _isLoading?LoadingIndicator():MainPage(),
+      home: _isLoading ? const LoadingIndicator() : const MainPage(),
     );
   }
 }

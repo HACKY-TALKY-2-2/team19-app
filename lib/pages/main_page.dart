@@ -451,27 +451,63 @@ class MainPageState extends State<MainPage> {
               right: 26, // 왼쪽 여백 조절
               child: Column(
                 children: [
-                  toggleWidget(
-                    onImage: 'cctv_on.png',
-                    offImage: 'cctv_off.png',
-                    loadingCCTV: _loadingCCTVandComplains,
-                    isOn: _isCCTVOn,
-                    changeIsOn: (value) {
-                      setState(() {
-                        _isCCTVOn = value;
-                      });
-                    },
+                  Column(
+                    children: [
+                      toggleWidget(
+                        onImage: 'cctv_on.png',
+                        offImage: 'cctv_off.png',
+                        loadingCCTV: _loadingCCTVandComplains,
+                        isOn: _isCCTVOn,
+                        changeIsOn: (value) {
+                          setState(() {
+                            _isCCTVOn = value;
+                          });
+                        },
+                      ),
+                      Container(
+                        color: Colors.white,
+                        width: 60,
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'CCTV 위치',
+                          style: TextStyle(
+                              fontSize: 10,
+                              fontFamily: 'Interop-Medium',
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
                   ),
-                  toggleWidget(
-                    onImage: 'complain_on.png',
-                    offImage: 'complain_off.jpg',
-                    loadingCCTV: _loadingCCTVandComplains,
-                    isOn: _isComplainOn,
-                    changeIsOn: (value) {
-                      setState(() {
-                        _isComplainOn = value;
-                      });
-                    },
+                  const SizedBox(
+                    height: 13,
+                  ),
+                  Column(
+                    children: [
+                      toggleWidget(
+                        onImage: 'complain_on.png',
+                        offImage: 'complain_off.jpg',
+                        loadingCCTV: _loadingCCTVandComplains,
+                        isOn: _isComplainOn,
+                        changeIsOn: (value) {
+                          setState(() {
+                            _isComplainOn = value;
+                          });
+                        },
+                      ),
+                      Container(
+                        color: Colors.white,
+                        width: 60,
+                        alignment: Alignment.center,
+                        child: const Text(
+                          '민원 위치',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontFamily: 'Interop-Medium',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
+                    ],
                   ),
                 ],
               ),
@@ -667,7 +703,7 @@ class _toggleWidgetState extends State<toggleWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: ElevatedButton(
         style: ButtonStyle(
           fixedSize: MaterialStateProperty.all(const Size(60, 60)),

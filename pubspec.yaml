@@ -86,6 +86,10 @@ flutter:
     - family: Gangwonstate
       fonts:
         - asset: assets/fonts/Gangwonstate-SemiBold.ttf
+    - family: Interop
+      fonts:
+        - asset: assets/fonts/Interop-Light.otf
+        - asset: assets/fonts/Interop-Medium.otf
 
   #
   # For details regarding fonts from package dependencies,
