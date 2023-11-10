@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parking_app/pages/search_page.dart';
+import 'package:parking_app/pages/setting_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -84,7 +85,7 @@ class MainPageState extends State<MainPage> {
                         context: context,
                         barrierDismissible: true, // 다이얼로그 바깥을 터치해서 닫을 수 없도록 설정
                         builder: (BuildContext context) {
-                          return SearchPage(); // 화면 전체를 채우는 다이얼로그
+                          return const SearchPage(); // 화면 전체를 채우는 다이얼로그
                         },
                       );
                     },
@@ -140,6 +141,11 @@ class MainPageState extends State<MainPage> {
                     ),
                     onPressed: () {
                       // 세 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) {
+                          return const SettingPage();
+                        },
+                      ));
                     },
                     child: Container(
                       width: 20,
