@@ -177,8 +177,9 @@ class MainPageState extends State<MainPage> {
 
   Future<void> _getCurrentLocation() async {
     final GeolocatorPlatform geolocator = GeolocatorPlatform.instance;
-    LocationPermission permission = await geolocator.requestPermission();
 
+    // 1. 위치 권한 요청 최적화
+    LocationPermission permission = await geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('위치 권한이 거부되었습니다.'),
@@ -187,9 +188,21 @@ class MainPageState extends State<MainPage> {
     }
 
     try {
-      Position position = await Geolocator.getCurrentPosition(
+      // 2. 권한 요청과 위치 정보 가져오기를 병렬로 처리
+      var permissionTask = geolocator.requestPermission();
+      var positionTask = Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
+
+      var permissionResult = await permissionTask;
+      if (permissionResult == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('위치 권한이 거부되었습니다.'),
+        ));
+        return;
+      }
+
+      var position = await positionTask;
 
       setState(() {
         currentPosition = position;
