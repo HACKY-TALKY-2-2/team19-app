@@ -10,6 +10,12 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('부가 가능들'),
+        ),
+      ),
+    );
   }
 }
