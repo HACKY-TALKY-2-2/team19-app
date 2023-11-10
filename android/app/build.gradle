@@ -51,16 +51,17 @@ android {
         versionName flutterVersionName
 
         // ...
-
         // Google Maps API 키를 환경 변수로 설정
-        def localPropertiesFile = rootProject.file('local.properties')
-        if (localPropertiesFile.exists()) {
+        def googleWithLocalPropertiesFile = rootProject.file('local.properties')
+        if (googleWithLocalPropertiesFile.exists()) {
             Properties properties = new Properties()
-            properties.load(new FileInputStream(localPropertiesFile))
+            properties.load(new FileInputStream(googleWithLocalPropertiesFile))
             if (properties.containsKey('GOOGLE_MAPS_API_KEY')) {
-                manifestPlaceholders = [google_maps_api_key: properties['GOOGLE_MAPS_API_KEY']]
+                manifestPlaceholders.google_maps_api_key = properties['GOOGLE_MAPS_API_KEY']
             }
         }
+        
+        
     }
 
     buildTypes {
