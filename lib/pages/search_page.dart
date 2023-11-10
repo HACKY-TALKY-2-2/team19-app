@@ -7,7 +7,7 @@ class SearchedAddres {
   late double lat;
   late double lng;
 
-  SearchedAddres(this.name, this.formattedAddress);
+  SearchedAddres(this.name, this.formattedAddress,this.lat,this.lng);
 }
 
 class SearchPage extends StatefulWidget {
@@ -61,6 +61,7 @@ class _SearchPageState extends State<SearchPage> {
               ),
               child: TextField(
                 controller: _controller,
+                onChanged: (value) => _searchAddress(),
                 onSubmitted: (value) => _searchAddress(),
                 decoration: InputDecoration(
                   hintText: 'Enter an address',
@@ -82,6 +83,9 @@ class _SearchPageState extends State<SearchPage> {
                     return Container(
                       color: Colors.white,
                       child: ListTile(
+                        onTap: () {
+                          Navigator.pop(context, searchedAddress[index]);
+                        },
                         title: Text(searchedAddress[index].name),
                         subtitle: Text(searchedAddress[index].formattedAddress),
                       ),
@@ -126,6 +130,8 @@ class _SearchPageState extends State<SearchPage> {
             searchedAddress.add(SearchedAddres(
               response.data['results'][i]['name'],
               response.data['results'][i]['formatted_address'],
+              response.data['results'][i]['geometry']['location']['lat'],
+              response.data['results'][i]['geometry']['location']['lng'],
             ));
           }
         });
