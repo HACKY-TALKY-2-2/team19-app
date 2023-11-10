@@ -35,10 +35,10 @@ class _MyAppState extends State<MyApp> {
   }
 
   void getUuid() async {
-    var uuid = Uuid().v4();
+    var uuid = const Uuid().v4();
     FlutterSecureStorage secureStorage = const FlutterSecureStorage();
     String? cookiesBySecureStorage = await secureStorage.read(key: 'userUuid');
-    debugPrint("current UUID :" + cookiesBySecureStorage.toString());
+    debugPrint("current UUID :$cookiesBySecureStorage");
     if (cookiesBySecureStorage == null) {
       await secureStorage.write(key: 'userUuid', value: uuid);
     }
@@ -51,8 +51,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Google Maps Demo',
-      theme: ThemeData(fontFamily: 'Yeongdeok'),
-      home: _isLoading?Container():MainPage(),
+      theme: ThemeData(fontFamily: 'Interop-Light'),
+      home: _isLoading ? Container() : const MainPage(),
     );
   }
 }
