@@ -20,6 +20,9 @@ class MainPageState extends State<MainPage> {
   ///로직적으로 currentPostion이 설정될 시 currentLatLng도 설정되도록 코드를 짤것
   Position? currentPosition;
   LatLng? currentLatLng;
+  Set<Marker> _userMarkers = {};
+  Set<Marker> _cctvMarkers = {};
+  Set<Marker> _complainMarkers = {};
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -109,6 +112,20 @@ class MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    Set<Marker> totalMarkers = {};
+    _userMarkers.clear();
+    if (currentLatLng != null) {
+      _userMarkers.add(Marker(
+        markerId: const MarkerId("currentLocation"),
+        position: currentLatLng!,
+        icon: BitmapDescriptor.defaultMarker,
+        infoWindow: const InfoWindow(
+          title: "현재 위치",
+        ),
+      ));
+    }
+    totalMarkers = {..._userMarkers, ..._cctvMarkers, ..._complainMarkers};
+
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -117,6 +134,11 @@ class MainPageState extends State<MainPage> {
             GoogleMap(
               mapType: MapType.normal,
               initialCameraPosition: _kGooglePlex,
+              onCameraMove: (CameraPosition newPosition) {
+                // 지도 이동 감지
+                loadingCCTV();
+                
+              },
 
               //TODO: 솔직히 이거 두개 기능 차이 모르겠음
               myLocationEnabled: true,
@@ -127,18 +149,7 @@ class MainPageState extends State<MainPage> {
                 _controller.complete(controller);
               },
 
-              markers: currentLatLng != null
-                  ? {
-                      Marker(
-                        markerId: const MarkerId("currentLocation"),
-                        position: currentLatLng!,
-                        icon: BitmapDescriptor.defaultMarker,
-                        infoWindow: const InfoWindow(
-                          title: "Current Location",
-                        ),
-                      ),
-                    }
-                  : {},
+              markers: totalMarkers,
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 60),
@@ -355,6 +366,10 @@ class MainPageState extends State<MainPage> {
       for (int i = 0; i < response.data.length; i++) {
         debugPrint("리스폰스 결과${response.data[i]}");
       }
+      //TODO: 여기서 불러온 값들을 기준으로 작성해줘야한다.
+      setState(() {
+        
+      });
     } on DioException catch (e) {
       if (e.response != null) {
         // DioError contains response data
