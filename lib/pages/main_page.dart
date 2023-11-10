@@ -16,6 +16,8 @@ class MainPage extends StatefulWidget {
 
 class MainPageState extends State<MainPage> {
   final Completer<GoogleMapController> _controller = Completer();
+
+  ///로직적으로 currentPostion이 설정될 시 currentLatLng도 설정되도록 코드를 짤것
   Position? currentPosition;
   LatLng? currentLatLng;
 
@@ -125,12 +127,11 @@ class MainPageState extends State<MainPage> {
                 _controller.complete(controller);
               },
 
-              markers: currentPosition != null
+              markers: currentLatLng != null
                   ? {
                       Marker(
                         markerId: const MarkerId("currentLocation"),
-                        position: LatLng(currentPosition!.latitude,
-                            currentPosition!.longitude),
+                        position: currentLatLng!,
                         icon: BitmapDescriptor.defaultMarker,
                         infoWindow: const InfoWindow(
                           title: "Current Location",
@@ -157,13 +158,27 @@ class MainPageState extends State<MainPage> {
                     ),
                     onPressed: () async {
                       // 첫 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
-                      final result = await showDialog(
+                      SearchedAddres? result = await showDialog(
                         context: context,
                         barrierDismissible: true, // 다이얼로그 바깥을 터치해서 닫을 수 없도록 설정
                         builder: (BuildContext context) {
                           return const SearchPage(); // 화면 전체를 채우는 다이얼로그
                         },
                       );
+                      if (result == null) return;
+                      debugPrint("result: $result");
+                      final GoogleMapController controller =
+                          await _controller.future;
+
+                      CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(
+                        LatLng(result!.lat, result!.lng),
+                        15.0,
+                      );
+                      controller.animateCamera(cameraUpdate);
+
+                      setState(() {
+                        currentLatLng = LatLng(result!.lat, result!.lng);
+                      });
                     },
                     child: Container(
                       width: 20,
@@ -259,6 +274,7 @@ class MainPageState extends State<MainPage> {
     );
   }
 
+  ///현재 위치 가져오고 그 위치로 이동까지 함.
   Future<void> _getCurrentLocation() async {
     final GeolocatorPlatform geolocator = GeolocatorPlatform.instance;
 
@@ -290,6 +306,7 @@ class MainPageState extends State<MainPage> {
 
       setState(() {
         currentPosition = position;
+        currentLatLng = LatLng(position.latitude, position.longitude);
       });
 
       if (currentPosition != null) {
