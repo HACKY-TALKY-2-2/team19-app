@@ -17,6 +17,7 @@ class MainPage extends StatefulWidget {
 class MainPageState extends State<MainPage> {
   final Completer<GoogleMapController> _controller = Completer();
   Position? currentPosition;
+  LatLng? currentLatLng;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -54,7 +55,7 @@ class MainPageState extends State<MainPage> {
         //   },
       );
       for (int i = 0; i < response.data.length; i++) {
-        debugPrint("리스폰스 결과" + response.data[i].toString());
+        debugPrint("리스폰스 결과${response.data[i]}");
       }
     } on DioException catch (e) {
       if (e.response != null) {
@@ -85,7 +86,7 @@ class MainPageState extends State<MainPage> {
         },
       );
       for (int i = 0; i < response.data.length; i++) {
-        debugPrint("리스폰스 결과" + response.data[i].toString());
+        debugPrint("리스폰스 결과${response.data[i]}");
       }
     } on DioException catch (e) {
       if (e.response != null) {
