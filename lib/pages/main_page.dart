@@ -13,16 +13,17 @@ class MainPageState extends State<MainPage> {
   Completer<GoogleMapController> _controller = Completer();
   Position? currentPosition;
 
-  static final CameraPosition _kGooglePlex = CameraPosition(
+  static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
   );
 
-  static final CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(37.43296265331129, -122.08832357078792),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
+  static const CameraPosition _kLake = CameraPosition(
+    bearing: 192.8334901395799,
+    target: LatLng(37.43296265331129, -122.08832357078792),
+    tilt: 59.440717697143555,
+    zoom: 19.151926040649414,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,6 @@ class MainPageState extends State<MainPage> {
         onMapCreated: (GoogleMapController controller) {
           _controller.complete(controller);
         },
-        //현재 위치에 마커 찍기
         markers: currentPosition != null
             ? {
                 Marker(
@@ -49,10 +49,9 @@ class MainPageState extends State<MainPage> {
             : {},
       ),
       floatingActionButton: FloatingActionButton.extended(
-        //onPressed: _goToTheLake,
         onPressed: _getCurrentLocation,
-        label: Text('To the lake!'),
-        icon: Icon(Icons.directions_boat),
+        label: Text('현재 위치로 이동'),
+        icon: Icon(Icons.location_on),
       ),
     );
   }
@@ -62,31 +61,38 @@ class MainPageState extends State<MainPage> {
     LocationPermission permission = await geolocator.requestPermission();
 
     if (permission == LocationPermission.denied) {
-      // 사용자가 위치 권한을 거부한 경우 처리
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Location permission denied.'),
+        content: Text('위치 권한이 거부되었습니다.'),
       ));
       return;
     }
 
-    // 현재 위치 가져오기
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-    setState(() {
-      currentPosition = position;
-    });
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
 
-    // 현재 위치로 카메라 이동
-    final GoogleMapController controller = await _controller.future;
-    if (currentPosition != null) {
-      // 이동할 위치와 줌 레벨을 설정합니다.
-      CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(
-          LatLng(currentPosition!.latitude, currentPosition!.longitude), 15.0);
+      setState(() {
+        currentPosition = position;
+      });
 
-      // 카메라를 이동하고 줌을 조정합니다.
-      controller.animateCamera(cameraUpdate);
+      if (currentPosition != null) {
+        _moveCameraToCurrentPosition();
+      }
+    } catch (e) {
+      print('Error: $e');
     }
+  }
+
+  Future<void> _moveCameraToCurrentPosition() async {
+    final GoogleMapController controller = await _controller.future;
+
+    CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(
+      LatLng(currentPosition!.latitude, currentPosition!.longitude),
+      15.0,
+    );
+
+    controller.animateCamera(cameraUpdate);
   }
 
   Future<void> _goToTheLake() async {
