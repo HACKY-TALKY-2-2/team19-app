@@ -78,13 +78,15 @@ class MainPageState extends State<MainPage> {
                         ),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       // 첫 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return const SearchPage();
+                      final result = await showDialog(
+                        context: context,
+                        barrierDismissible: true, // 다이얼로그 바깥을 터치해서 닫을 수 없도록 설정
+                        builder: (BuildContext context) {
+                          return SearchPage(); // 화면 전체를 채우는 다이얼로그
                         },
-                      ));
+                      );
                     },
                     child: Container(
                       width: 20,
@@ -179,8 +181,9 @@ class MainPageState extends State<MainPage> {
 
   Future<void> _getCurrentLocation() async {
     final GeolocatorPlatform geolocator = GeolocatorPlatform.instance;
-    LocationPermission permission = await geolocator.requestPermission();
 
+    // 1. 위치 권한 요청 최적화
+    LocationPermission permission = await geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('위치 권한이 거부되었습니다.'),
@@ -189,9 +192,21 @@ class MainPageState extends State<MainPage> {
     }
 
     try {
-      Position position = await Geolocator.getCurrentPosition(
+      // 2. 권한 요청과 위치 정보 가져오기를 병렬로 처리
+      var permissionTask = geolocator.requestPermission();
+      var positionTask = Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
+
+      var permissionResult = await permissionTask;
+      if (permissionResult == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('위치 권한이 거부되었습니다.'),
+        ));
+        return;
+      }
+
+      var position = await positionTask;
 
       setState(() {
         currentPosition = position;
