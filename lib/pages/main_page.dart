@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parking_app/pages/search_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -62,7 +63,7 @@ class MainPageState extends State<MainPage> {
                   : {},
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 80),
+              padding: const EdgeInsets.only(bottom: 60),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -79,6 +80,11 @@ class MainPageState extends State<MainPage> {
                     ),
                     onPressed: () {
                       // 첫 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) {
+                          return const SearchPage();
+                        },
+                      ));
                     },
                     child: Container(
                       width: 20,
@@ -147,16 +153,20 @@ class MainPageState extends State<MainPage> {
                 ],
               ),
             ),
-            const Positioned(
+            Positioned(
               top: 90, // 하단 여백 조절
               right: 26, // 왼쪽 여백 조절
               child: Column(
                 children: [
                   toggleWidget(
-                    image: 'cctv_on.png',
+                    onImage: 'cctv_on.png',
+                    offImage: 'cctv_off.png',
+                    isOn: true,
                   ),
                   toggleWidget(
-                    image: 'complain_on.png',
+                    onImage: 'complain_on.png',
+                    offImage: 'complain_on.png',
+                    isOn: false,
                   ),
                 ],
               ),
@@ -212,13 +222,23 @@ class MainPageState extends State<MainPage> {
   }
 }
 
-class toggleWidget extends StatelessWidget {
-  final String image;
-  const toggleWidget({
+class toggleWidget extends StatefulWidget {
+  final String onImage;
+  final String offImage;
+  bool isOn;
+
+  toggleWidget({
     super.key,
-    required this.image,
+    required this.onImage,
+    required this.offImage,
+    required this.isOn,
   });
 
+  @override
+  State<toggleWidget> createState() => _toggleWidgetState();
+}
+
+class _toggleWidgetState extends State<toggleWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -235,6 +255,9 @@ class toggleWidget extends StatelessWidget {
         ),
         onPressed: () {
           // 첫 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
+          setState(() {
+            widget.isOn = !widget.isOn;
+          });
         },
         child: Container(
           width: 20,
@@ -242,7 +265,9 @@ class toggleWidget extends StatelessWidget {
           child: Transform.scale(
             scale: 2,
             child: Image.asset(
-              'assets/icons/$image',
+              widget.isOn
+                  ? 'assets/icons/${widget.onImage}'
+                  : 'assets/icons/${widget.offImage}',
             ),
           ),
         ),
