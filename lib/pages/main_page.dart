@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parking_app/pages/search_page.dart';
+import 'package:parking_app/pages/setting_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -15,6 +17,7 @@ class MainPage extends StatefulWidget {
 class MainPageState extends State<MainPage> {
   final Completer<GoogleMapController> _controller = Completer();
   Position? currentPosition;
+  LatLng? currentLatLng;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -27,6 +30,80 @@ class MainPageState extends State<MainPage> {
     tilt: 59.440717697143555,
     zoom: 19.151926040649414,
   );
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    exampleGetApi();
+    examplePostApi();
+  }
+
+  ///예제 코드 입니다.
+  void exampleGetApi() async {
+    final Dio dio = Dio();
+    try {
+      final response = await dio.get(
+        'http://parking-api.jseoplim.com/users',
+        //쿼리 파라미터 넣는법
+        // queryParameters: {
+        //     'query': _controller.text,
+        //     'key':
+        //         'AIzaSyC8wLLyw_26SoLNnnUwdimZ5NXNhdAwGNA', // 여기에 실제 API 키를 넣으세요
+
+        //     'language': 'ko',
+        //   },
+      );
+      for (int i = 0; i < response.data.length; i++) {
+        debugPrint("리스폰스 결과${response.data[i]}");
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        // DioError contains response data
+        print('Dio error!');
+        print('STATUS: ${e.response?.statusCode}');
+        print('DATA: ${e.response?.data}');
+        print('HEADERS: ${e.response?.headers}');
+      } else {
+        // Error due to setting up or sending/receiving the request
+        print('Error sending request!');
+        print(e.message);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void examplePostApi() async {
+    final Dio dio = Dio();
+    try {
+      final response = await dio.post(
+        'http://parking-api.jseoplim.com/users',
+        //post는 body가 있어야한다.
+        data: {
+          'username': 'JohnDoe',
+          'email': 'johndoe@example.com',
+        },
+      );
+      for (int i = 0; i < response.data.length; i++) {
+        debugPrint("리스폰스 결과${response.data[i]}");
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        // DioError contains response data
+        print('Dio error!');
+        print('STATUS: ${e.response?.statusCode}');
+        print('DATA: ${e.response?.data}');
+        print('HEADERS: ${e.response?.headers}');
+      } else {
+        // Error due to setting up or sending/receiving the request
+        print('Error sending request!');
+        print(e.message);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +161,7 @@ class MainPageState extends State<MainPage> {
                         context: context,
                         barrierDismissible: true, // 다이얼로그 바깥을 터치해서 닫을 수 없도록 설정
                         builder: (BuildContext context) {
-                          return SearchPage(); // 화면 전체를 채우는 다이얼로그
+                          return const SearchPage(); // 화면 전체를 채우는 다이얼로그
                         },
                       );
                     },
@@ -140,6 +217,11 @@ class MainPageState extends State<MainPage> {
                     ),
                     onPressed: () {
                       // 세 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) {
+                          return const SettingPage();
+                        },
+                      ));
                     },
                     child: Container(
                       width: 20,
@@ -163,12 +245,10 @@ class MainPageState extends State<MainPage> {
                   toggleWidget(
                     onImage: 'cctv_on.png',
                     offImage: 'cctv_off.png',
-                    isOn: true,
                   ),
                   toggleWidget(
                     onImage: 'complain_on.png',
-                    offImage: 'complain_on.png',
-                    isOn: false,
+                    offImage: 'complain_off.jpg',
                   ),
                 ],
               ),
@@ -240,13 +320,12 @@ class MainPageState extends State<MainPage> {
 class toggleWidget extends StatefulWidget {
   final String onImage;
   final String offImage;
-  bool isOn;
+  bool isOn = false;
 
   toggleWidget({
     super.key,
     required this.onImage,
     required this.offImage,
-    required this.isOn,
   });
 
   @override
