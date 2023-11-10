@@ -78,8 +78,15 @@ class MainPageState extends State<MainPage> {
                         ),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       // 첫 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
+                      final result = await showDialog(
+                        context: context,
+                        barrierDismissible: true, // 다이얼로그 바깥을 터치해서 닫을 수 없도록 설정
+                        builder: (BuildContext context) {
+                          return SearchPage(); // 화면 전체를 채우는 다이얼로그
+                        },
+                      );
                     },
                     child: Container(
                       width: 20,
