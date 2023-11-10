@@ -22,9 +22,9 @@ class MainPageState extends State<MainPage> {
   ///로직적으로 currentPostion이 설정될 시 currentLatLng도 설정되도록 코드를 짤것
   Position? currentPosition;
   LatLng? currentLatLng;
-  Set<Marker> _userMarkers = {};
-  Set<Marker> _cctvMarkers = {};
-  Set<Marker> _complainMarkers = {};
+  final Set<Marker> _userMarkers = {};
+  final Set<Marker> _cctvMarkers = {};
+  final Set<Marker> _complainMarkers = {};
   bool _isCCTVOn = false;
   bool _isComplainOn = false;
 
@@ -49,7 +49,7 @@ class MainPageState extends State<MainPage> {
     exampleGetApi();
     examplePostApi();
     addCustomMarker();
-    Timer.periodic(Duration(seconds: 3), (Timer t) {
+    Timer.periodic(const Duration(seconds: 3), (Timer t) {
       periodicFunction();
     });
   }
@@ -259,13 +259,13 @@ class MainPageState extends State<MainPage> {
                           await _controller.future;
 
                       CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(
-                        LatLng(result!.lat, result!.lng),
+                        LatLng(result.lat, result.lng),
                         15.0,
                       );
                       controller.animateCamera(cameraUpdate);
 
                       setState(() {
-                        currentLatLng = LatLng(result!.lat, result!.lng);
+                        currentLatLng = LatLng(result.lat, result.lng);
                       });
                     },
                     child: Container(
@@ -436,55 +436,53 @@ class MainPageState extends State<MainPage> {
 
   Future<void> _loadingCCTVandComplains() async {
     final GoogleMapController controller = await _controller.future;
-    if (controller != null) {
-      final LatLngBounds bounds = await controller!.getVisibleRegion();
-      print('Visible region bounds:');
-      print('Northeast: ${bounds.northeast}');
-      print('Southwest: ${bounds.southwest}');
+    final LatLngBounds bounds = await controller.getVisibleRegion();
+    print('Visible region bounds:');
+    print('Northeast: ${bounds.northeast}');
+    print('Southwest: ${bounds.southwest}');
 
-      final Dio dio = Dio();
-      try {
-        final response = await dio.get(
-          'http://parking-api.jseoplim.com/cameras',
-          queryParameters: {
-            'rectangle':
-                '${bounds.southwest.longitude},${bounds.southwest.latitude},${bounds.northeast.longitude},${bounds.northeast.latitude}',
-          },
-        );
+    final Dio dio = Dio();
+    try {
+      final response = await dio.get(
+        'http://parking-api.jseoplim.com/cameras',
+        queryParameters: {
+          'rectangle':
+              '${bounds.southwest.longitude},${bounds.southwest.latitude},${bounds.northeast.longitude},${bounds.northeast.latitude}',
+        },
+      );
+      for (int i = 0; i < response.data.length; i++) {
+        debugPrint("리스폰스 결과${response.data[i]}");
+      }
+      //TODO: 여기서 불러온 값들을 기준으로 작성해줘야한다.
+      setState(() {
+        _cctvMarkers.clear();
         for (int i = 0; i < response.data.length; i++) {
           debugPrint("리스폰스 결과${response.data[i]}");
+          _cctvMarkers.add(Marker(
+            markerId: MarkerId('CCTV$i'),
+            position: LatLng(
+                response.data[i]["latitude"], response.data[i]["longitude"]),
+            icon: _cctvIcon,
+            infoWindow: const InfoWindow(
+              title: "CCTV",
+            ),
+          ));
         }
-        //TODO: 여기서 불러온 값들을 기준으로 작성해줘야한다.
-        setState(() {
-          _cctvMarkers.clear();
-          for (int i = 0; i < response.data.length; i++) {
-            debugPrint("리스폰스 결과${response.data[i]}");
-            _cctvMarkers.add(Marker(
-              markerId: MarkerId('CCTV$i'),
-              position: LatLng(
-                  response.data[i]["latitude"], response.data[i]["longitude"]),
-              icon: _cctvIcon,
-              infoWindow: const InfoWindow(
-                title: "CCTV",
-              ),
-            ));
-          }
-        });
-      } on DioException catch (e) {
-        if (e.response != null) {
-          // DioError contains response data
-          print('Dio error!');
-          print('STATUS: ${e.response?.statusCode}');
-          print('DATA: ${e.response?.data}');
-          print('HEADERS: ${e.response?.headers}');
-        } else {
-          // Error due to setting up or sending/receiving the request
-          print('Error sending request!');
-          print(e.message);
-        }
-      } catch (e) {
-        debugPrint(e.toString());
+      });
+    } on DioException catch (e) {
+      if (e.response != null) {
+        // DioError contains response data
+        print('Dio error!');
+        print('STATUS: ${e.response?.statusCode}');
+        print('DATA: ${e.response?.data}');
+        print('HEADERS: ${e.response?.headers}');
+      } else {
+        // Error due to setting up or sending/receiving the request
+        print('Error sending request!');
+        print(e.message);
       }
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 }
