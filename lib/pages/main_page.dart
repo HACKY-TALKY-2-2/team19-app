@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parking_app/pages/search_page.dart';
@@ -27,8 +28,10 @@ class MainPageState extends State<MainPage> {
   final Set<Marker> _complainMarkers = {};
   bool _isCCTVOn = false;
   bool _isComplainOn = false;
+  bool _isSearchOn = false;
 
   BitmapDescriptor _cctvIcon = BitmapDescriptor.defaultMarker;
+  BitmapDescriptor _complainsIcon = BitmapDescriptor.defaultMarker;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -46,10 +49,11 @@ class MainPageState extends State<MainPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     exampleGetApi();
     examplePostApi();
     addCustomMarker();
-    Timer.periodic(const Duration(seconds: 3), (Timer t) {
+    Timer.periodic(Duration(seconds: 5), (Timer t) {
       periodicFunction();
     });
   }
@@ -84,6 +88,94 @@ class MainPageState extends State<MainPage> {
       var position = await positionTask;
       debugPrint("현재 위치: ${position.latitude}, ${position.longitude}");
 
+      if (_isSearchOn == true) return;
+      Dio dio = Dio();
+      FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+      String? deviceToken = await secureStorage.read(key: 'userUuid');
+/*
+//CCTV 근처 여부 판단.
+      try {
+        final response = await dio.post(
+          'http://parking-api.jseoplim.com/devices/{$deviceToken}/check-camera',
+          //post는 body가 있어야한다.
+          data: {
+            'longitude': position.longitude,
+            'latitude': position.latitude,
+          },
+        );
+        debugPrint("리스폰스 결과${response.data["entryStatus"]}");
+      } on DioException catch (e) {
+        if (e.response != null) {
+          // DioError contains response data
+          print('Dio error!');
+          print('STATUS: ${e.response?.statusCode}');
+          print('DATA: ${e.response?.data}');
+          print('HEADERS: ${e.response?.headers}');
+        } else {
+          // Error due to setting up or sending/receiving the request
+          print('Error sending request!');
+          print(e.message);
+        }
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+
+
+      //신고 위치 근처 판단.
+      try {
+        final response = await dio.post(
+          'http://parking-api.jseoplim.com/devices/{$deviceToken}/check-report',
+          //post는 body가 있어야한다.
+          data: {
+            'longitude': position.longitude,
+            'latitude': position.latitude,
+          },
+        );
+        debugPrint("리스폰스 결과${response.data["entryStatus"]}");
+      } on DioException catch (e) {
+        if (e.response != null) {
+          // DioError contains response data
+          print('Dio error!');
+          print('STATUS: ${e.response?.statusCode}');
+          print('DATA: ${e.response?.data}');
+          print('HEADERS: ${e.response?.headers}');
+        } else {
+          // Error due to setting up or sending/receiving the request
+          print('Error sending request!');
+          print(e.message);
+        }
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+
+      //기기의 현재 위치 갱신.
+      try {
+        final response = await dio.post(
+          'http://parking-api.jseoplim.com/devices/{$deviceToken}/position',
+          //post는 body가 있어야한다.
+          data: {
+            'longitude': position.longitude,
+            'latitude': position.latitude,
+          },
+        );
+        debugPrint("리스폰스 결과${response.data["entryStatus"]}");
+      } on DioException catch (e) {
+        if (e.response != null) {
+          // DioError contains response data
+          print('Dio error!');
+          print('STATUS: ${e.response?.statusCode}');
+          print('DATA: ${e.response?.data}');
+          print('HEADERS: ${e.response?.headers}');
+        } else {
+          // Error due to setting up or sending/receiving the request
+          print('Error sending request!');
+          print(e.message);
+        }
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+      */
+
       // setState(() {
       //   currentPosition = position;
       //   currentLatLng = LatLng(position.latitude, position.longitude);
@@ -108,10 +200,15 @@ class MainPageState extends State<MainPage> {
   }
 
   void addCustomMarker() async {
-    final Uint8List markerIcon =
+    final Uint8List markerIcon1 =
+        await getBytesFromAsset('assets/icons/cctv.png', 80);
+
+    //TODO: 민원신고 아이콘 바꾸기
+    final Uint8List markerIcon2 =
         await getBytesFromAsset('assets/icons/cctv.png', 80);
     setState(() {
-      _cctvIcon = BitmapDescriptor.fromBytes(markerIcon);
+      _cctvIcon = BitmapDescriptor.fromBytes(markerIcon1);
+      _complainsIcon = BitmapDescriptor.fromBytes(markerIcon2);
     });
   }
 
@@ -189,8 +286,8 @@ class MainPageState extends State<MainPage> {
       _userMarkers.add(Marker(
         markerId: const MarkerId("currentLocation"),
         position: currentLatLng!,
-        icon: _cctvIcon,
-        // icon: BitmapDescriptor.defaultMarker,
+        // icon: _cctvIcon,
+        icon: BitmapDescriptor.defaultMarker,
         infoWindow: const InfoWindow(
           title: "현재 위치",
         ),
@@ -246,6 +343,9 @@ class MainPageState extends State<MainPage> {
                     ),
                     onPressed: () async {
                       // 첫 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
+                      setState(() {
+                        _isSearchOn = true;
+                      });
                       SearchedAddres? result = await showDialog(
                         context: context,
                         barrierDismissible: true, // 다이얼로그 바깥을 터치해서 닫을 수 없도록 설정
@@ -293,7 +393,11 @@ class MainPageState extends State<MainPage> {
                     ),
                     onPressed: () async {
                       // 두 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
-                      _getCurrentLocation();
+
+                      await _getCurrentLocation();
+                      setState(() {
+                        _isSearchOn = false;
+                      });
                     },
                     child: Container(
                       width: 20,
@@ -319,6 +423,9 @@ class MainPageState extends State<MainPage> {
                       ),
                     ),
                     onPressed: () {
+                      setState(() {
+                        _isSearchOn = true;
+                      });
                       Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return const SettingPage();
@@ -481,8 +588,48 @@ class MainPageState extends State<MainPage> {
         print('Error sending request!');
         print(e.message);
       }
-    } catch (e) {
-      debugPrint(e.toString());
+      try {
+        final response = await dio.get(
+          'http://parking-api.jseoplim.com/reports',
+          queryParameters: {
+            'rectangle':
+                '${bounds.southwest.longitude},${bounds.southwest.latitude},${bounds.northeast.longitude},${bounds.northeast.latitude}',
+          },
+        );
+        for (int i = 0; i < response.data.length; i++) {
+          debugPrint("리스폰스 결과${response.data[i]}");
+        }
+        //TODO: 여기서 불러온 값들을 기준으로 작성해줘야한다.
+        setState(() {
+          _complainMarkers.clear();
+          for (int i = 0; i < response.data.length; i++) {
+            debugPrint("리스폰스 결과${response.data[i]}");
+            _complainMarkers.add(Marker(
+              markerId: MarkerId('complains$i'),
+              position: LatLng(
+                  response.data[i]["latitude"], response.data[i]["longitude"]),
+              icon: _complainsIcon,
+              infoWindow: const InfoWindow(
+                title: "신고",
+              ),
+            ));
+          }
+        });
+      } on DioException catch (e) {
+        if (e.response != null) {
+          // DioError contains response data
+          print('Dio error!');
+          print('STATUS: ${e.response?.statusCode}');
+          print('DATA: ${e.response?.data}');
+          print('HEADERS: ${e.response?.headers}');
+        } else {
+          // Error due to setting up or sending/receiving the request
+          print('Error sending request!');
+          print(e.message);
+        }
+      } catch (e) {
+        debugPrint(e.toString());
+      }
     }
   }
 }

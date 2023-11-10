@@ -135,7 +135,7 @@ class _SearchPageState extends State<SearchPage> {
         setState(() {
           _response = response.data['results'].toString();
           searchedAddress.clear();
-          for (var i = 0; i < response.data['results'].length && i < 7; i++) {
+          for (var i = 0; i < response.data['results'].length; i++) {
             searchedAddress.add(SearchedAddres(
               response.data['results'][i]['name'],
               response.data['results'][i]['formatted_address'],
