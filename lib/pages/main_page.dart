@@ -169,12 +169,10 @@ class MainPageState extends State<MainPage> {
                   toggleWidget(
                     onImage: 'cctv_on.png',
                     offImage: 'cctv_off.png',
-                    isOn: true,
                   ),
                   toggleWidget(
                     onImage: 'complain_on.png',
                     offImage: 'complain_off.jpg',
-                    isOn: true,
                   ),
                 ],
               ),
@@ -246,13 +244,12 @@ class MainPageState extends State<MainPage> {
 class toggleWidget extends StatefulWidget {
   final String onImage;
   final String offImage;
-  bool isOn;
+  bool isOn = false;
 
   toggleWidget({
     super.key,
     required this.onImage,
     required this.offImage,
-    required this.isOn,
   });
 
   @override
