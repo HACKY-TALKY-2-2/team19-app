@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parking_app/pages/search_page.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -32,16 +33,16 @@ class MainPageState extends State<MainPage> {
         child: GoogleMap(
           mapType: MapType.normal,
           initialCameraPosition: _kGooglePlex,
-      
+
           //TODO: 솔직히 이거 두개 기능 차이 모르겠음
           myLocationEnabled: true,
           myLocationButtonEnabled: true,
           zoomControlsEnabled: false,
-      
+
           onMapCreated: (GoogleMapController controller) {
             _controller.complete(controller);
           },
-          
+
           markers: currentPosition != null
               ? {
                   Marker(
@@ -58,7 +59,21 @@ class MainPageState extends State<MainPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _getCurrentLocation,
+        // onPressed: _getCurrentLocation,
+        onPressed: () {
+          showDialog(
+              context: context,
+              barrierDismissible: true, // 다이얼로그 바깥을 터치해서 닫을 수 없도록 설정
+              builder: (BuildContext context) {
+                return  SearchPage(); // 화면 전체를 채우는 다이얼로그
+              },
+            );
+          // Navigator.of(context).push(
+          //   MaterialPageRoute(
+          //     builder: (context) => SearchPage(),
+          //   ),
+          // );
+        },
         label: Text('현재 위치로 이동'),
         icon: Icon(Icons.location_on),
       ),
