@@ -84,6 +84,7 @@ flutter:
     - family: Yeongdeok
       fonts:
         - asset: assets/fonts/YeongdeokHaeparang.otf
+
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
