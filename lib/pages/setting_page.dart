@@ -27,6 +27,9 @@ class _SettingPageState extends State<SettingPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
+                  style: const ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(Colors.white),
+                      elevation: MaterialStatePropertyAll(0.0)),
                   onPressed: () {},
                   child: Container(
                     clipBehavior: Clip.hardEdge,
@@ -65,6 +68,9 @@ class _SettingPageState extends State<SettingPage> {
                   height: 60,
                 ),
                 ElevatedButton(
+                  style: const ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(Colors.white),
+                      elevation: MaterialStatePropertyAll(0.0)),
                   onPressed: () async {
                     final url = Uri.parse(
                         'https://smartreport.seoul.go.kr/w100/index.do');
