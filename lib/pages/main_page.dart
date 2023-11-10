@@ -28,25 +28,34 @@ class MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-        markers: currentPosition != null
-            ? {
-                Marker(
-                  markerId: MarkerId("currentLocation"),
-                  position: LatLng(
-                      currentPosition!.latitude, currentPosition!.longitude),
-                  icon: BitmapDescriptor.defaultMarker,
-                  infoWindow: InfoWindow(
-                    title: "Current Location",
+      body: SafeArea(
+        child: GoogleMap(
+          mapType: MapType.normal,
+          initialCameraPosition: _kGooglePlex,
+      
+          //TODO: 솔직히 이거 두개 기능 차이 모르겠음
+          myLocationEnabled: true,
+          myLocationButtonEnabled: true,
+          zoomControlsEnabled: false,
+      
+          onMapCreated: (GoogleMapController controller) {
+            _controller.complete(controller);
+          },
+          
+          markers: currentPosition != null
+              ? {
+                  Marker(
+                    markerId: MarkerId("currentLocation"),
+                    position: LatLng(
+                        currentPosition!.latitude, currentPosition!.longitude),
+                    icon: BitmapDescriptor.defaultMarker,
+                    infoWindow: InfoWindow(
+                      title: "Current Location",
+                    ),
                   ),
-                ),
-              }
-            : {},
+                }
+              : {},
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _getCurrentLocation,
