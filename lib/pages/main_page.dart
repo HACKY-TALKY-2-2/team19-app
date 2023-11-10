@@ -103,8 +103,9 @@ class MainPageState extends State<MainPage> {
                         ),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       // 두 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
+                      _getCurrentLocation();
                     },
                     child: Container(
                       width: 20,
@@ -142,6 +143,20 @@ class MainPageState extends State<MainPage> {
                         ),
                       ),
                     ),
+                  ),
+                ],
+              ),
+            ),
+            const Positioned(
+              top: 90, // 하단 여백 조절
+              right: 26, // 왼쪽 여백 조절
+              child: Column(
+                children: [
+                  toggleWidget(
+                    image: 'cctv_on.png',
+                  ),
+                  toggleWidget(
+                    image: 'complain_on.png',
                   ),
                 ],
               ),
@@ -194,5 +209,44 @@ class MainPageState extends State<MainPage> {
   Future<void> _goToTheLake() async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
+  }
+}
+
+class toggleWidget extends StatelessWidget {
+  final String image;
+  const toggleWidget({
+    super.key,
+    required this.image,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: ElevatedButton(
+        style: ButtonStyle(
+          fixedSize: MaterialStateProperty.all(const Size(60, 60)),
+          backgroundColor: MaterialStateProperty.all(Colors.white),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0), // 원하는 BorderRadius 설정
+            ),
+          ),
+        ),
+        onPressed: () {
+          // 첫 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
+        },
+        child: Container(
+          width: 20,
+          decoration: const BoxDecoration(),
+          child: Transform.scale(
+            scale: 2,
+            child: Image.asset(
+              'assets/icons/$image',
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
