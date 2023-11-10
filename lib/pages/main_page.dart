@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parking_app/pages/search_page.dart';
 import 'package:parking_app/pages/setting_page.dart';
+import 'dart:ui' as ui;
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -49,16 +51,22 @@ class MainPageState extends State<MainPage> {
     addCustomMarker();
   }
 
-  void addCustomMarker() {
-    BitmapDescriptor.fromAssetImage(
-          const ImageConfiguration(size: Size(48,48)), "assets/icons/cctv.png")
-      .then(
-    (icon) {
-      setState(() {
-        _cctvIcon = icon;
-      });
-    },
-  );
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
+  }
+
+  void addCustomMarker() async {
+    final Uint8List markerIcon =
+        await getBytesFromAsset('assets/icons/cctv.png', 80);
+    setState(() {
+      _cctvIcon = BitmapDescriptor.fromBytes(markerIcon);
+    });
   }
 
   ///예제 코드 입니다.
