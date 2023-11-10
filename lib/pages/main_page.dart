@@ -23,6 +23,10 @@ class MainPageState extends State<MainPage> {
   Set<Marker> _userMarkers = {};
   Set<Marker> _cctvMarkers = {};
   Set<Marker> _complainMarkers = {};
+  bool _isCCTVOn = false;
+  bool _isComplainOn = false;
+
+  BitmapDescriptor _cctvIcon = BitmapDescriptor.defaultMarker;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -42,6 +46,19 @@ class MainPageState extends State<MainPage> {
     super.initState();
     exampleGetApi();
     examplePostApi();
+    addCustomMarker();
+  }
+
+  void addCustomMarker() {
+    BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(size: Size(48,48)), "assets/icons/cctv.png")
+      .then(
+    (icon) {
+      setState(() {
+        _cctvIcon = icon;
+      });
+    },
+  );
   }
 
   ///예제 코드 입니다.
@@ -118,13 +135,20 @@ class MainPageState extends State<MainPage> {
       _userMarkers.add(Marker(
         markerId: const MarkerId("currentLocation"),
         position: currentLatLng!,
-        icon: BitmapDescriptor.defaultMarker,
+        icon: _cctvIcon,
+        // icon: BitmapDescriptor.defaultMarker,
         infoWindow: const InfoWindow(
           title: "현재 위치",
         ),
       ));
     }
-    totalMarkers = {..._userMarkers, ..._cctvMarkers, ..._complainMarkers};
+    totalMarkers.addAll(_userMarkers);
+    if (_isCCTVOn) {
+      totalMarkers.addAll(_cctvMarkers);
+    }
+    if (_isComplainOn) {
+      totalMarkers.addAll(_complainMarkers);
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -136,8 +160,7 @@ class MainPageState extends State<MainPage> {
               initialCameraPosition: _kGooglePlex,
               onCameraMove: (CameraPosition newPosition) {
                 // 지도 이동 감지
-                loadingCCTV();
-                
+                _loadingCCTVandComplains();
               },
 
               //TODO: 솔직히 이거 두개 기능 차이 모르겠음
@@ -270,12 +293,24 @@ class MainPageState extends State<MainPage> {
                   toggleWidget(
                     onImage: 'cctv_on.png',
                     offImage: 'cctv_off.png',
-                    loadingCCTV: loadingCCTV,
+                    loadingCCTV: _loadingCCTVandComplains,
+                    isOn: _isCCTVOn,
+                    changeIsOn: (value) {
+                      setState(() {
+                        _isCCTVOn = value;
+                      });
+                    },
                   ),
                   toggleWidget(
                     onImage: 'complain_on.png',
                     offImage: 'complain_off.jpg',
-                    loadingCCTV: loadingCCTV,
+                    loadingCCTV: _loadingCCTVandComplains,
+                    isOn: _isComplainOn,
+                    changeIsOn: (value) {
+                      setState(() {
+                        _isComplainOn = value;
+                      });
+                    },
                   ),
                 ],
               ),
@@ -345,45 +380,57 @@ class MainPageState extends State<MainPage> {
     controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
   }
 
-  Future<void> loadingCCTV() async {
+  Future<void> _loadingCCTVandComplains() async {
     final GoogleMapController controller = await _controller.future;
     if (controller != null) {
       final LatLngBounds bounds = await controller!.getVisibleRegion();
       print('Visible region bounds:');
       print('Northeast: ${bounds.northeast}');
       print('Southwest: ${bounds.southwest}');
-    }
-    final Dio dio = Dio();
-    try {
-      final response = await dio.post(
-        'http://parking-api.jseoplim.com/users',
-        //post는 body가 있어야한다.
-        data: {
-          'username': 'JohnDoe',
-          'email': 'johndoe@example.com',
-        },
-      );
-      for (int i = 0; i < response.data.length; i++) {
-        debugPrint("리스폰스 결과${response.data[i]}");
+
+      final Dio dio = Dio();
+      try {
+        final response = await dio.get(
+          'http://parking-api.jseoplim.com/cameras',
+          queryParameters: {
+            'rectangle':
+                '${bounds.southwest.longitude},${bounds.southwest.latitude},${bounds.northeast.longitude},${bounds.northeast.latitude}',
+          },
+        );
+        for (int i = 0; i < response.data.length; i++) {
+          debugPrint("리스폰스 결과${response.data[i]}");
+        }
+        //TODO: 여기서 불러온 값들을 기준으로 작성해줘야한다.
+        setState(() {
+          _cctvMarkers.clear();
+          for (int i = 0; i < response.data.length; i++) {
+            debugPrint("리스폰스 결과${response.data[i]}");
+            _cctvMarkers.add(Marker(
+              markerId: MarkerId('CCTV$i'),
+              position: LatLng(
+                  response.data[i]["latitude"], response.data[i]["longitude"]),
+              icon: _cctvIcon,
+              infoWindow: const InfoWindow(
+                title: "CCTV",
+              ),
+            ));
+          }
+        });
+      } on DioException catch (e) {
+        if (e.response != null) {
+          // DioError contains response data
+          print('Dio error!');
+          print('STATUS: ${e.response?.statusCode}');
+          print('DATA: ${e.response?.data}');
+          print('HEADERS: ${e.response?.headers}');
+        } else {
+          // Error due to setting up or sending/receiving the request
+          print('Error sending request!');
+          print(e.message);
+        }
+      } catch (e) {
+        debugPrint(e.toString());
       }
-      //TODO: 여기서 불러온 값들을 기준으로 작성해줘야한다.
-      setState(() {
-        
-      });
-    } on DioException catch (e) {
-      if (e.response != null) {
-        // DioError contains response data
-        print('Dio error!');
-        print('STATUS: ${e.response?.statusCode}');
-        print('DATA: ${e.response?.data}');
-        print('HEADERS: ${e.response?.headers}');
-      } else {
-        // Error due to setting up or sending/receiving the request
-        print('Error sending request!');
-        print(e.message);
-      }
-    } catch (e) {
-      debugPrint(e.toString());
     }
   }
 }
@@ -394,12 +441,15 @@ class toggleWidget extends StatefulWidget {
   final Function? loadingCCTV;
 
   bool isOn = false;
+  final Function? changeIsOn;
 
   toggleWidget(
       {super.key,
       required this.onImage,
       required this.offImage,
-      required this.loadingCCTV});
+      required this.loadingCCTV,
+      required this.isOn,
+      required this.changeIsOn});
 
   @override
   State<toggleWidget> createState() => _toggleWidgetState();
@@ -422,10 +472,7 @@ class _toggleWidgetState extends State<toggleWidget> {
         ),
         onPressed: () {
           // 첫 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
-          if (widget.isOn == true) {
-          } else {
-            widget.loadingCCTV!();
-          }
+          widget.changeIsOn!(!widget.isOn);
           setState(() {
             widget.isOn = !widget.isOn;
           });
