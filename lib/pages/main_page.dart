@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -28,6 +29,80 @@ class MainPageState extends State<MainPage> {
     tilt: 59.440717697143555,
     zoom: 19.151926040649414,
   );
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    exampleGetApi();
+    examplePostApi();
+  }
+
+  ///예제 코드 입니다.
+  void exampleGetApi() async {
+    final Dio dio = Dio();
+    try {
+      final response = await dio.get(
+        'http://parking-api.jseoplim.com/users',
+        //쿼리 파라미터 넣는법
+        // queryParameters: {
+        //     'query': _controller.text,
+        //     'key':
+        //         'AIzaSyC8wLLyw_26SoLNnnUwdimZ5NXNhdAwGNA', // 여기에 실제 API 키를 넣으세요
+
+        //     'language': 'ko',
+        //   },
+      );
+      for (int i = 0; i < response.data.length; i++) {
+        debugPrint("리스폰스 결과" + response.data[i].toString());
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        // DioError contains response data
+        print('Dio error!');
+        print('STATUS: ${e.response?.statusCode}');
+        print('DATA: ${e.response?.data}');
+        print('HEADERS: ${e.response?.headers}');
+      } else {
+        // Error due to setting up or sending/receiving the request
+        print('Error sending request!');
+        print(e.message);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void examplePostApi() async {
+    final Dio dio = Dio();
+    try {
+      final response = await dio.post(
+        'http://parking-api.jseoplim.com/users',
+        //post는 body가 있어야한다.
+        data: {
+          'username': 'JohnDoe',
+          'email': 'johndoe@example.com',
+        },
+      );
+      for (int i = 0; i < response.data.length; i++) {
+        debugPrint("리스폰스 결과" + response.data[i].toString());
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        // DioError contains response data
+        print('Dio error!');
+        print('STATUS: ${e.response?.statusCode}');
+        print('DATA: ${e.response?.data}');
+        print('HEADERS: ${e.response?.headers}');
+      } else {
+        // Error due to setting up or sending/receiving the request
+        print('Error sending request!');
+        print(e.message);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
