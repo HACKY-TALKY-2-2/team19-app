@@ -173,8 +173,8 @@ class MainPageState extends State<MainPage> {
                   ),
                   toggleWidget(
                     onImage: 'complain_on.png',
-                    offImage: 'complain_on.png',
-                    isOn: false,
+                    offImage: 'complain_off.jpg',
+                    isOn: true,
                   ),
                 ],
               ),
