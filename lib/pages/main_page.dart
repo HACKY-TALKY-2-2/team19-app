@@ -231,7 +231,6 @@ class MainPageState extends State<MainPage> {
                       ),
                     ),
                     onPressed: () {
-                      // 세 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
                       Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return const SettingPage();
@@ -260,10 +259,12 @@ class MainPageState extends State<MainPage> {
                   toggleWidget(
                     onImage: 'cctv_on.png',
                     offImage: 'cctv_off.png',
+                    loadingCCTV: loadingCCTV,
                   ),
                   toggleWidget(
                     onImage: 'complain_on.png',
                     offImage: 'complain_off.jpg',
+                    loadingCCTV: loadingCCTV,
                   ),
                 ],
               ),
@@ -332,18 +333,58 @@ class MainPageState extends State<MainPage> {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
   }
+
+  Future<void> loadingCCTV() async {
+    final GoogleMapController controller = await _controller.future;
+    if (controller != null) {
+      final LatLngBounds bounds = await controller!.getVisibleRegion();
+      print('Visible region bounds:');
+      print('Northeast: ${bounds.northeast}');
+      print('Southwest: ${bounds.southwest}');
+    }
+    final Dio dio = Dio();
+    try {
+      final response = await dio.post(
+        'http://parking-api.jseoplim.com/users',
+        //post는 body가 있어야한다.
+        data: {
+          'username': 'JohnDoe',
+          'email': 'johndoe@example.com',
+        },
+      );
+      for (int i = 0; i < response.data.length; i++) {
+        debugPrint("리스폰스 결과${response.data[i]}");
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        // DioError contains response data
+        print('Dio error!');
+        print('STATUS: ${e.response?.statusCode}');
+        print('DATA: ${e.response?.data}');
+        print('HEADERS: ${e.response?.headers}');
+      } else {
+        // Error due to setting up or sending/receiving the request
+        print('Error sending request!');
+        print(e.message);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 }
 
 class toggleWidget extends StatefulWidget {
   final String onImage;
   final String offImage;
+  final Function? loadingCCTV;
+
   bool isOn = false;
 
-  toggleWidget({
-    super.key,
-    required this.onImage,
-    required this.offImage,
-  });
+  toggleWidget(
+      {super.key,
+      required this.onImage,
+      required this.offImage,
+      required this.loadingCCTV});
 
   @override
   State<toggleWidget> createState() => _toggleWidgetState();
@@ -366,6 +407,10 @@ class _toggleWidgetState extends State<toggleWidget> {
         ),
         onPressed: () {
           // 첫 번째 버튼 클릭 시 실행할 코드를 여기에 추가하세요.
+          if (widget.isOn == true) {
+          } else {
+            widget.loadingCCTV!();
+          }
           setState(() {
             widget.isOn = !widget.isOn;
           });
